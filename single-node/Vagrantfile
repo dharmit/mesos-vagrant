@@ -1,0 +1,33 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+Vagrant.configure("2") do |config|
+	config.vm.box = "ubuntu/trusty64"
+	number_of_masters=3
+	number_of_slaves=3
+
+	config.vm.provider :digital_ocean do |provider, override|
+		override.ssh.private_key_path = '~/.ssh/id_rsa'
+
+		provider.token=ENV['DO_TOKEN']
+		provider.image='ubuntu-14-04-x64'
+		provider.region='nyc2'
+		provider.size='512mb'
+	end
+
+	config.vm.define "master-1" do |host|
+		host.vm.hostname = "master-1"
+	end
+
+	config.vm.provision "shell" do |shell|
+		shell.path = "./provisioning/apt.sh"
+	end
+
+	config.vm.provision "ansible" do |ansible|
+		ansible.groups = {
+			"single-node" => ["master-1"],
+		}
+		ansible.playbook = "provisioning/playbook.yml"	
+		ansible.start_at_task = "Add docker containerizer"
+	end
+end
