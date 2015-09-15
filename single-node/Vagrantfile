@@ -28,6 +28,5 @@ Vagrant.configure("2") do |config|
 			"single-node" => ["master-1"],
 		}
 		ansible.playbook = "provisioning/playbook.yml"	
-		ansible.start_at_task = "Add docker containerizer"
 	end
 end
